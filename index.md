@@ -1,4 +1,4 @@
-## Welcome to GitHub Pages
+## Self-Regulated Feature Learning via Teacher-free Feature Distillation
 
 You can use the [editor on GitHub](https://github.com/lilujunai/Tf-FD.github.io/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
 
