@@ -4,7 +4,7 @@
 
 Keywords: Knowledge Distillation, Feature Regularization
 
-[paper](https://github.com/lilujunai/Tf-FD.github.io/edit/gh-pages/index.md), [code](https://github.com/lilujunai/Tf-FD.github.io/edit/gh-pages/index.md), [log&model](https://github.com/lilujunai/Tf-FD.github.io/edit/gh-pages/index.md),
+[paper](https://github.com/lilujunai/Tf-FD.github.io/edit/gh-pages/index.md), [code](https://github.com/lilujunai/Teacher-free-Distillation), [Training logs & model](https://pan.baidu.com/s/1-1oKjctjSxzlWHygkffG_g),
 
 ### Abstract
 
