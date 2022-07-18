@@ -1,5 +1,5 @@
 # Teacher-free Feature Distillation
-***This repo is in the process of re-building based on KD-ZOO. The new version will contain most of the models/exp in paper. Please stay tuned.***
+***This repo is in the process of re-building based on KD-ZOO. The final version will contain most of the models/exp in paper. Please stay tuned.***
 
 This project provides Pytorch implementation for [Self-Regulated Feature Learning via Teacher-free Feature Distillation](https://lilujunai.github.io/Teacher-free-Distillation/).
 
