@@ -74,22 +74,6 @@ def save_checkpoint(state, is_best, save_root):
 		best_save_path = os.path.join(save_root, 'model_best.pth.tar')
 		shutil.copyfile(save_path, best_save_path)
 
-
-class SoftTarget(nn.Module):
-	'''
-	Distilling the Knowledge in a Neural Network
-	https://arxiv.org/pdf/1503.02531.pdf
-	'''
-	def __init__(self):
-		super(SoftTarget, self).__init__()
-		self.T = 4
-
-	def forward(self, out_s, out_t):
-		loss = F.kl_div(F.log_softmax(out_s/self.T, dim=1),
-						F.softmax(out_t/self.T, dim=1),
-						reduction='batchmean') * self.T * self.T
-
-		return loss
    
 def accuracy(output, target, topk=(1,)):
 	"""Computes the precision@k for the specified values of k"""
