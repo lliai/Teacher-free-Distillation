@@ -3,29 +3,32 @@
 
 This project provides Pytorch implementation for [Self-Regulated Feature Learning via Teacher-free Feature Distillation](https://lilujunai.github.io/Teacher-free-Distillation/).
 
-
 ## Requirements
-- python 3.7
-- pytorch 1.3.1
-- torchvision 0.4.2
+```
+` Python == 3.7, PyTorch == 1.3.1`
+```
+
+## Datasets
+CIFAR-100 and Imagenet.
 
 
-
-## Train 
-Run train.py for training Tf-FD in CIFAR datasets. 
+## Training
+Run train_kd.py for training Tf-FD in CIFAR datasets. 
 
 Tf-FD:
 
+
 `python -u train_kd.py --save_root "./results/tfd/" --kd_mode tfd --lambda_inter 0.0005 --lambda_intra 0.0008 --kd-warm-up 20 --note tfd-c10-r110-r20-lambda_inter-0.0005--lambda_intra-0.0.008--kd-warm-up-20`
 
+
 Tf-FD+(Tf-FD):
+
 
 `python -u train_kd.py --save_root "./results/tfd/" --kd_mode tfd+ --lambda_inter 0.0005 --lambda_intra 0.0008 --kd-warm-up 20 --note tfd-c10-r110-r20-lambda_inter-0.0005--lambda_intra-0.0.008--kd-warm-up-20`
 
 
-Most pretrained models and logs has been released. 
-
-Baidu Netdisk link is provided:
+## Results
+Most pretrained models and logs has been released on aidu Netdisk:
 
 link: https://pan.baidu.com/s/1-1oKjctjSxzlWHygkffG_g
 
