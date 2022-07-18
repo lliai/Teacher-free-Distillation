@@ -461,59 +461,8 @@ def ICKDLoss(f_s, f_t):
     return torch.mean((f_s-f_t)**2)
 
 
-def SFKDV2(f_s, f_t):
-    s_H, t_H = f_s.shape[2], f_t.shape[2]
-    if s_H > t_H:
-        f_s = F.adaptive_avg_pool2d(f_s, (t_H, t_H))
-    elif s_H < t_H:
-        f_t = F.adaptive_avg_pool2d(f_t, (s_H, s_H))
-    else:
-        pass
-    s_C, t_C = f_s.shape[1], f_t.shape[1]
-    loss = 0
-    if s_C > t_C:
-        if s_C//t_C ==1:
-            loss = ICKDLoss(f_s[:, 0:t_C, :, :], f_t)
-        elif s_C//t_C ==2:
-            loss = ICKDLoss(f_s[:, 0:t_C, :, :], f_t)+ ICKDLoss(f_s[:, t_C:2 * t_C, :, :], f_t)
-            loss = loss / 2
-        elif s_C // t_C == 3:
-            loss = ICKDLoss(f_s[:, 0:t_C, :, :], f_t) + ICKDLoss(f_s[:, t_C:2 * t_C, :, :], f_t)+ ICKDLoss(f_s[:, 2 * t_C:3 * t_C, :, :], f_t)
-            loss = loss / 3
-        elif s_C // t_C == 4:
-            loss = ICKDLoss(f_s[:, 0:t_C, :, :], f_t) + ICKDLoss(f_s[:, t_C:2 * t_C, :, :], f_t)+ ICKDLoss(f_s[:, 2 * t_C:3 * t_C, :, :], f_t) + ICKDLoss(f_s, f_t[:, 3 * s_C: 4 * s_C, :, :])
-            loss = loss /4
-        elif s_C // t_C > 4:
-            loss = ICKDLoss(f_s[:, 0:t_C, :, :], f_t) + ICKDLoss(f_s[:, t_C:2 * t_C, :, :], f_t)+ ICKDLoss(f_s[:, 2 * t_C:3 * t_C, :, :], f_t) + ICKDLoss(f_s, f_t[:, 3 * s_C: 4 * s_C, :, :])
-            loss = loss /4
-        else:
-            pass
-    elif s_C < t_C:
-        if   t_C // s_C ==1:
-            loss = ICKDLoss(f_s, f_t[:, 0:s_C, :, :])
-        elif t_C//s_C ==2:
-            loss = ICKDLoss(f_s, f_t[:, 0:s_C, :, :]) + ICKDLoss(f_s, f_t[:, s_C: 2 * s_C, :, :])
-            loss = loss / 2
-        elif t_C // s_C == 3:
-            loss = ICKDLoss(f_s, f_t[:, 0:s_C, :, :]) + ICKDLoss(f_s, f_t[:, s_C: 2 * s_C, :, :]) + ICKDLoss(f_s, f_t[:, 2 * s_C:3 * s_C, :, :])
-            loss = loss / 3
-        elif t_C // s_C == 4:
-            loss = ICKDLoss(f_s, f_t[:, 0:s_C, :, :]) + ICKDLoss(f_s, f_t[:, s_C: 2 * s_C, :, :]) + ICKDLoss(f_s, f_t[:, 2 * s_C:3 * s_C, :, :]) + ICKDLoss(f_s, f_t[:, 3 * s_C:4 * s_C, :, :])
-            loss = loss /4
-        elif t_C // s_C > 4:
-            loss = ICKDLoss(f_s, f_t[:, 0:s_C, :, :]) + ICKDLoss(f_s, f_t[:, s_C: 2 * s_C, :, :]) + ICKDLoss(f_s, f_t[:, 2 * s_C:3 * s_C, :, :]) + ICKDLoss(f_s, f_t[:, 3 * s_C:4 * s_C, :, :])
-            loss = loss /4
-        else:
-            pass
 
-    return loss
-
-
-def intra_fd(f_s, f_t):
-    #sorted_t, indices_t = torch.sort(f_t.mean([0, 2, 3]), dim=0, descending=True)
-    # print(sorted_s)
-    # print(sorted_t-sorted_s)
-    #f_t = torch.index_select(f_t, 1, indices_t)
+def inter_fd(f_s, f_t):
     s_H, t_H = f_s.shape[2], f_t.shape[2]
     if s_H > t_H:
         f_s = F.adaptive_avg_pool2d(f_s, (t_H, t_H))
@@ -533,13 +482,9 @@ def intra_fd(f_s, f_t):
 def L2Loss(y,yhead):
     return torch.mean((y-yhead)**2)
 
-def inter_fd(f_s):
+def intra_fd(f_s):
     sorted_s, indices_s = torch.sort(torch.nn.functional.normalize(f_s, p=2, dim=(2,3)).mean([0, 2, 3]), dim=0, descending=True)
-    #sorted_s, indices_s = torch.sort(f_s.mean([0, 2, 3]), dim=0, descending=True)
-    # print(sorted_s)
-    # print(sorted_t-sorted_s)
     f_s = torch.index_select(f_s, 1, indices_s)
     loss = L2Loss(f_s[:, 0:f_s.shape[1]//2, :, :], f_s[:, f_s.shape[1]//2: f_s.shape[1], :, :])
-    # return loss, f_s
     return loss
 
