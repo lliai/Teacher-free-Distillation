@@ -55,7 +55,6 @@ parser.add_argument('--kd_mode', type=str, required=True, help='mode of kd, whic
 															   'logits/st/at/fitnet/nst/pkt/fsp/rkd/ab/'
 															   'sp/sobolev/cc/lwm/irg/tfd/vid/ofd/afd')
 parser.add_argument('--lambda_kd', type=float, default=1.0, help='trade-off parameter for kd loss')
-parser.add_argument('--lambda_kd1', type=float, default=1.0, help='trade-off parameter for kd loss')
 parser.add_argument('--T', type=float, default=4.0, help='temperature for ST')
 parser.add_argument('--p', type=float, default=2.0, help='power for AT')
 parser.add_argument('--w_dist', type=float, default=25.0, help='weight for RKD distance')
@@ -394,6 +393,10 @@ def train(train_loader, nets, optimizer, criterions, epoch):
 		elif args.kd_mode in ['tfd']:
 			kd_loss = (F.mse_loss(F.avg_pool2d(rb1_s[1],2), rb2_s[1][:, 0:16, :, :].detach())+ F.mse_loss(F.avg_pool2d(rb1_s[1],4), rb3_s[1][:, 0:16, :, :].detach())+F.mse_loss(F.avg_pool2d(rb2_s[1],2), rb3_s[1][:, 0:32, :, :].detach()))/3 * args.lambda_inter
 			kd_loss += (intra_fd(rb1_s[1])+intra_fd(rb2_s[1])+intra_fd(rb3_s[1]) )/3  * args.lambda_intra
+		elif args.kd_mode in ['tfd+']:
+			kd_loss = F.kl_div(F.log_softmax(out_s/4, dim=1), F.softmax(out_t.detach()/4, dim=1),reduction='batchmean') * 4 * 4 * args.lambda_kd
+			kd_loss += (F.mse_loss(F.avg_pool2d(rb1_s[1],2), rb2_s[1][:, 0:16, :, :].detach())+ F.mse_loss(F.avg_pool2d(rb1_s[1],4), rb3_s[1][:, 0:16, :, :].detach())+F.mse_loss(F.avg_pool2d(rb2_s[1],2), rb3_s[1][:, 0:32, :, :].detach()))/3 * args.lambda_inter
+			kd_loss += (intra_fd(rb1_s[1])+intra_fd(rb2_s[1])+intra_fd(rb3_s[1]) )/3  * args.lambda_intra
 		elif args.kd_mode in ['fitnet', 'nst']:
 			kd_loss = criterionKD(rb3_s[1], rb3_t[1].detach()) * args.lambda_kd
 		elif args.kd_mode in ['at', 'sp']:
@@ -430,7 +433,7 @@ def train(train_loader, nets, optimizer, criterions, epoch):
 					   criterionKD[3](rb3_s[0], rb3_t[0].detach())) / 3.0 * args.lambda_kd
 		else:
 			raise Exception('Invalid kd mode...')
-		loss = cls_loss + kd_loss
+		loss = cls_loss + min(1, epoch/args.kd_warm_up) * kd_loss
 
 		prec1, prec5 = accuracy(out_s, target, topk=(1,5))
 		cls_losses.update(cls_loss.item(), img.size(0))
@@ -495,6 +498,10 @@ def test(test_loader, nets, criterions, epoch):
 			kd_loss  = criterionKD(out_s, out_t.detach()) * args.lambda_kd
 		elif args.kd_mode in ['tfd']:
 			kd_loss = (F.mse_loss(F.avg_pool2d(rb1_s[1],2), rb2_s[1][:, 0:16, :, :].detach())+ F.mse_loss(F.avg_pool2d(rb1_s[1],4), rb3_s[1][:, 0:16, :, :].detach())+F.mse_loss(F.avg_pool2d(rb2_s[1],2), rb3_s[1][:, 0:32, :, :].detach()))/3 * args.lambda_inter
+			kd_loss += (intra_fd(rb1_s[1])+intra_fd(rb2_s[1])+intra_fd(rb3_s[1]) )/3  * args.lambda_intra
+		elif args.kd_mode in ['tfd+']:
+			kd_loss = F.kl_div(F.log_softmax(out_s/4, dim=1), F.softmax(out_t.detach()/4, dim=1),reduction='batchmean') * 4 * 4 * args.lambda_kd
+			kd_loss += (F.mse_loss(F.avg_pool2d(rb1_s[1],2), rb2_s[1][:, 0:16, :, :].detach())+ F.mse_loss(F.avg_pool2d(rb1_s[1],4), rb3_s[1][:, 0:16, :, :].detach())+F.mse_loss(F.avg_pool2d(rb2_s[1],2), rb3_s[1][:, 0:32, :, :].detach()))/3 * args.lambda_inter
 			kd_loss += (intra_fd(rb1_s[1])+intra_fd(rb2_s[1])+intra_fd(rb3_s[1]) )/3  * args.lambda_intra
 		elif args.kd_mode in ['fitnet', 'nst']:
 			kd_loss = criterionKD(rb3_s[1], rb3_t[1].detach()) * args.lambda_kd
