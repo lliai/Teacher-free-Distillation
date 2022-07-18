@@ -28,8 +28,8 @@ parser = argparse.ArgumentParser(description='train kd')
 # various path
 parser.add_argument('--save_root', type=str, default='./results', help='models and logs are saved here')
 parser.add_argument('--img_root', type=str, default='./datasets', help='path name of image dataset')
-parser.add_argument('--s_init', type=str, required=True, help='initial parameters of student model')
-parser.add_argument('--t_model', type=str, required=True, help='path name of teacher model')
+parser.add_argument('--s_init', type=str, default='results/base/base-c100-r20/initial_r20.pth.tar', help='initial parameters of student model')
+parser.add_argument('--t_model', type=str, default='results/base/base-c100-r110/initial_r110.pth.tar', help='path name of teacher model')
 
 # training hyper parameters
 parser.add_argument('--print_freq', type=int, default=50, help='frequency of showing training results on console')
@@ -38,7 +38,7 @@ parser.add_argument('--batch_size', type=int, default=128, help='The size of bat
 parser.add_argument('--lr', type=float, default=0.1, help='initial learning rate')
 parser.add_argument('--momentum', type=float, default=0.9, help='momentum')
 parser.add_argument('--weight_decay', type=float, default=5e-4, help='weight decay')
-parser.add_argument('--num_class', type=int, default=10, help='number of classes')
+parser.add_argument('--num_class', type=int, default=100, help='number of classes')
 parser.add_argument('--cuda', type=int, default=1)
 
 # others
@@ -46,9 +46,9 @@ parser.add_argument('--seed', type=int, default=2, help='random seed')
 parser.add_argument('--note', type=str, default='try', help='note for this run')
 
 # net and dataset choosen
-parser.add_argument('--data_name', type=str, required=True, help='name of dataset') # cifar10/cifar100
-parser.add_argument('--t_name', type=str, required=True, help='name of teacher')    # resnet20/resnet110
-parser.add_argument('--s_name', type=str, required=True, help='name of student')    # resnet20/resnet110
+parser.add_argument('--data_name', type=str,default='cifar100', help='name of dataset') # cifar10/cifar100
+parser.add_argument('--t_name', type=str, default='resnet110', help='name of teacher')    # resnet20/resnet110
+parser.add_argument('--s_name', type=str, default='resnet20', help='name of student')    # resnet20/resnet110
 
 # hyperparameter
 parser.add_argument('--kd_mode', type=str, required=True, help='mode of kd, which can be:'
