@@ -22,6 +22,15 @@ Tf-FD+(Tf-FD):
 
 `python -u train_kd.py --save_root "./results/tfd/" --kd_mode tfd+ --lambda_inter 0.0005 --lambda_intra 0.0008 --kd-warm-up 20 --note tfd-c10-r110-r20-lambda_inter-0.0005--lambda_intra-0.0.008--kd-warm-up-20`
 
+
+Most pretrained models and logs has been released. 
+
+Baidu Netdisk link is provided:
+
+link: https://pan.baidu.com/s/1-1oKjctjSxzlWHygkffG_g
+
+pwd: i4fj
+
 ## Acknowledgements
 This repo is partly based on the following repos, thank the authors a lot.
 - [HobbitLong/RepDistiller](https://github.com/HobbitLong/RepDistiller)
