@@ -28,7 +28,7 @@ Tf-FD+(Tf-FD):
 
 
 ## Results
-Most pretrained models and logs has been released on Baidu Netdisk:
+Most pretrained models and logs have been released on Baidu Netdisk:
 
 link: https://pan.baidu.com/s/1-1oKjctjSxzlWHygkffG_g
 
