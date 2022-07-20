@@ -45,7 +45,7 @@ If you find that this project helps your research, please consider citing some o
 ```
 @inproceedings{li2022TfFD,
     title={Self-Regulated Feature Learning via Teacher-free Feature Distillation},
-    author={Li, Lujun},
+    author={Lujun, Li},
     booktitle={European Conference on Computer Vision (ECCV)},
     year={2022}
 }
