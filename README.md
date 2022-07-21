@@ -8,7 +8,7 @@ This project provides Pytorch implementation for [Self-Regulated Feature Learnin
 ```
 
 ## Core Code
-```
+```python
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -52,15 +52,15 @@ Run train_kd.py for training Tf-FD in CIFAR datasets.
 
 Tf-FD:
 
-
-`python -u train_kd.py --save_root "./results/tfd/" --kd_mode tfd --lambda_inter 0.0005 --lambda_intra 0.0008 --note tfd-r20-inter-0.0005-intra-0.0008`
-
+```python
+python -u train_kd.py --save_root "./results/tfd/" --kd_mode tfd --lambda_inter 0.0005 --lambda_intra 0.0008 --note tfd-r20-inter-0.0005-intra-0.0008
+```
 
 Tf-FD+(Tf-FD):
 
-
-`python -u train_kd.py --save_root "./results/tfd+/" --kd_mode tfd+ --lambda_inter 0.0005 --lambda_intra 0.0008 --note tfd+-r20-inter-0.0005-intra-0.0008`
-
+```python
+python -u train_kd.py --save_root "./results/tfd+/" --kd_mode tfd+ --lambda_inter 0.0005 --lambda_intra 0.0008 --note tfd+-r20-inter-0.0005-intra-0.0008
+```
 
 ## Results
 Most pretrained models and logs have been released on Baidu Netdisk:
