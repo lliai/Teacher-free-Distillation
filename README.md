@@ -15,7 +15,7 @@ import torch.nn.functional as F
 
 class TfFD(nn.Module):
   '''
-  Teacher-free Feature Distillation
+  Core Code of Teacher-free Feature Distillation
   '''
   def __init__(self, lambda_intra, lambda_inter):
     super(TfFD, self).__init__()
@@ -33,15 +33,14 @@ class TfFD(nn.Module):
     return intra_fd_loss
     
   def inter_fd(f_s, f_t):
-    s_C, t_C = f_s.shape[1], f_t.shape[1]
-    s_H, t_H = f_s.shape[2], f_t.shape[2]
+    s_C, t_C, s_H, t_H = f_s.shape[1], f_t.shape[1], f_s.shape[2], f_t.shape[2]
     if s_H > t_H:
       f_s = F.adaptive_avg_pool2d(f_s, (t_H, t_H))
     elif s_H < t_H:
       f_t = F.adaptive_avg_pool2d(f_t, (s_H, s_H))
     else:
       pass
-    inter_fd_loss = F.mse_loss(f_s[:, 0:min(s_,t_C), :, :], f_t[:, 0:min(s_,t_C), :, :].detach())
+    inter_fd_loss = F.mse_loss(f_s[:, 0:min(s_C,t_C), :, :], f_t[:, 0:min(s_C,t_C), :, :].detach())
     return inter_fd_loss 
 
   return loss
