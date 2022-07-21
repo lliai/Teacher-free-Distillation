@@ -9,8 +9,6 @@ This project provides Pytorch implementation for [Self-Regulated Feature Learnin
 
 ## Core Code
 ```
-
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
