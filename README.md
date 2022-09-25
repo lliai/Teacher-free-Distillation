@@ -25,8 +25,8 @@ class TfFD(nn.Module):
     self.lambda_inter = lambda_inter
     
   def forward(self, f1, f2, f3):
-    loss = (intra_fd(f1)+intra_fd(f2)+intra_fd(f3))/3*self.lambda_intra
-    loss += (inter_fd(f1,f2)+inter_fd(f2,f3)+inter_fd(f1,f3))/3*self.lambda_intra
+    loss = (intra_fd(f1)+intra_fd(f2)+intra_fd(f3))*self.lambda_intra
+    loss += (inter_fd(f1,f2)+inter_fd(f2,f3)+inter_fd(f1,f3))*self.lambda_intra
     
   def intra_fd(f_s):
     sorted_s, indices_s = torch.sort(F.normalize(f_s, p=2, dim=(2,3)).mean([0, 2, 3]), dim=0, descending=True)
