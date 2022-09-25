@@ -2,6 +2,8 @@
 
 This project provides Pytorch implementation for [Self-Regulated Feature Learning via Teacher-free Feature Distillation](https://lilujunai.github.io/Teacher-free-Distillation/).
 
+![03287-Poster](03287-Poster.jpg)
+
 ## Requirements
 ```
 ` Python == 3.7, PyTorch == 1.3.1`
