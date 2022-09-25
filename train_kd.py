@@ -28,8 +28,8 @@ parser = argparse.ArgumentParser(description='train kd')
 # various path
 parser.add_argument('--save_root', type=str, default='./results', help='models and logs are saved here')
 parser.add_argument('--img_root', type=str, default='./datasets', help='path name of image dataset')
-parser.add_argument('--s_init', type=str, required=True, help='initial parameters of student model')
-parser.add_argument('--t_model', type=str, required=True, help='path name of teacher model')
+parser.add_argument('--s_init', type=str, default='results/base/base-c100-r20/initial_r20.pth.tar', help='initial parameters of student model')
+parser.add_argument('--t_model', type=str, default='results/base/base-c100-r110/initial_r110.pth.tar', help='path name of teacher model')
 
 # training hyper parameters
 parser.add_argument('--print_freq', type=int, default=50, help='frequency of showing training results on console')
@@ -38,7 +38,7 @@ parser.add_argument('--batch_size', type=int, default=128, help='The size of bat
 parser.add_argument('--lr', type=float, default=0.1, help='initial learning rate')
 parser.add_argument('--momentum', type=float, default=0.9, help='momentum')
 parser.add_argument('--weight_decay', type=float, default=5e-4, help='weight decay')
-parser.add_argument('--num_class', type=int, default=10, help='number of classes')
+parser.add_argument('--num_class', type=int, default=100, help='number of classes')
 parser.add_argument('--cuda', type=int, default=1)
 
 # others
@@ -46,16 +46,15 @@ parser.add_argument('--seed', type=int, default=2, help='random seed')
 parser.add_argument('--note', type=str, default='try', help='note for this run')
 
 # net and dataset choosen
-parser.add_argument('--data_name', type=str, required=True, help='name of dataset') # cifar10/cifar100
-parser.add_argument('--t_name', type=str, required=True, help='name of teacher')    # resnet20/resnet110
-parser.add_argument('--s_name', type=str, required=True, help='name of student')    # resnet20/resnet110
+parser.add_argument('--data_name', type=str,default='cifar100', help='name of dataset') # cifar10/cifar100
+parser.add_argument('--t_name', type=str, default='resnet110', help='name of teacher')    # resnet20/resnet110
+parser.add_argument('--s_name', type=str, default='resnet20', help='name of student')    # resnet20/resnet110
 
 # hyperparameter
 parser.add_argument('--kd_mode', type=str, required=True, help='mode of kd, which can be:'
 															   'logits/st/at/fitnet/nst/pkt/fsp/rkd/ab/'
 															   'sp/sobolev/cc/lwm/irg/tfd/vid/ofd/afd')
 parser.add_argument('--lambda_kd', type=float, default=1.0, help='trade-off parameter for kd loss')
-parser.add_argument('--lambda_kd1', type=float, default=1.0, help='trade-off parameter for kd loss')
 parser.add_argument('--T', type=float, default=4.0, help='temperature for ST')
 parser.add_argument('--p', type=float, default=2.0, help='power for AT')
 parser.add_argument('--w_dist', type=float, default=25.0, help='weight for RKD distance')
@@ -69,7 +68,10 @@ parser.add_argument('--w_irg_tran', type=float, default=5.0, help='weight for IR
 parser.add_argument('--sf', type=float, default=1.0, help='scale factor for VID, i.e. mid_channels = sf * out_channels')
 parser.add_argument('--init_var', type=float, default=5.0, help='initial variance for VID')
 parser.add_argument('--att_f', type=float, default=1.0, help='attention factor of mid_channels for AFD')
-parser.add_argument('--kd-warm-up', type=float, default=1, help='feature konwledge distillation loss weight warm up epochs')
+parser.add_argument('--lambda_inter', type=float, default=0.005, help='trade-off parameter for inter loss')
+parser.add_argument('--lambda_intra', type=float, default=0.0004, help='trade-off parameter for intra loss')
+parser.add_argument('--kd-warm-up', type=float, default=20.0, help='feature konwledge distillation loss weight warm up epochs')
+
 
 
 args, unparsed = parser.parse_known_args()
@@ -181,16 +183,16 @@ def main():
 
 	# initialize optimizer
 	if args.kd_mode in ['vid', 'ofd', 'afd']:
-		optimizer = torch.optim.SGD(chain(snet.parameters(), 
+		optimizer = torch.optim.SGD(chain(snet.parameters(),
 										  *[c.parameters() for c in criterionKD[1:]]),
-									lr = args.lr, 
-									momentum = args.momentum, 
+									lr = args.lr,
+									momentum = args.momentum,
 									weight_decay = args.weight_decay,
 									nesterov = True)
 	else:
 		optimizer = torch.optim.SGD(snet.parameters(),
-									lr = args.lr, 
-									momentum = args.momentum, 
+									lr = args.lr,
+									momentum = args.momentum,
 									weight_decay = args.weight_decay,
 									nesterov = True)
 
@@ -388,10 +390,13 @@ def train(train_loader, nets, optimizer, criterions, epoch):
 		cls_loss = criterionCls(out_s, target)
 		if args.kd_mode in ['logits', 'st']:
 			kd_loss = criterionKD(out_s, out_t.detach()) * args.lambda_kd
-
 		elif args.kd_mode in ['tfd']:
-			kd_loss = (intra_fd(rb1_s[1], rb2_s[1].detach())+intra_fd(rb2_s[1], rb3_s[1].detach())+intra_fd(rb1_s[1], rb3_s[1].detach())) * args.lambda_kd
-			kd_loss += (inter_fd(rb1_s[1])+inter_fd(rb2_s[1])+inter_fd(rb3_s[1]) ) * args.lambda_kd1
+			kd_loss = (F.mse_loss(F.avg_pool2d(rb1_s[1],2), rb2_s[1][:, 0:16, :, :].detach())+ F.mse_loss(F.avg_pool2d(rb1_s[1],4), rb3_s[1][:, 0:16, :, :].detach())+F.mse_loss(F.avg_pool2d(rb2_s[1],2), rb3_s[1][:, 0:32, :, :].detach()))/3 * args.lambda_inter
+			kd_loss += (intra_fd(rb1_s[1])+intra_fd(rb2_s[1])+intra_fd(rb3_s[1]) )/3  * args.lambda_intra
+		elif args.kd_mode in ['tfd+']:
+			kd_loss = F.kl_div(F.log_softmax(out_s/4, dim=1), F.softmax(out_t.detach()/4, dim=1),reduction='batchmean') * 4 * 4 * args.lambda_kd
+			kd_loss += (F.mse_loss(F.avg_pool2d(rb1_s[1],2), rb2_s[1][:, 0:16, :, :].detach())+ F.mse_loss(F.avg_pool2d(rb1_s[1],4), rb3_s[1][:, 0:16, :, :].detach())+F.mse_loss(F.avg_pool2d(rb2_s[1],2), rb3_s[1][:, 0:32, :, :].detach()))/3 * args.lambda_inter
+			kd_loss += (intra_fd(rb1_s[1])+intra_fd(rb2_s[1])+intra_fd(rb3_s[1]) )/3  * args.lambda_intra
 		elif args.kd_mode in ['fitnet', 'nst']:
 			kd_loss = criterionKD(rb3_s[1], rb3_t[1].detach()) * args.lambda_kd
 		elif args.kd_mode in ['at', 'sp']:
@@ -416,7 +421,7 @@ def train(train_loader, nets, optimizer, criterions, epoch):
 			kd_loss = criterionKD([rb2_s[1], rb3_s[1], feat_s, out_s],
 								  [rb2_t[1].detach(),
 								   rb3_t[1].detach(),
-								   feat_t.detach(), 
+								   feat_t.detach(),
 								   out_t.detach()]) * args.lambda_kd
 		elif args.kd_mode in ['vid', 'afd']:
 			kd_loss = (criterionKD[1](rb1_s[1], rb1_t[1].detach()) +
@@ -428,7 +433,7 @@ def train(train_loader, nets, optimizer, criterions, epoch):
 					   criterionKD[3](rb3_s[0], rb3_t[0].detach())) / 3.0 * args.lambda_kd
 		else:
 			raise Exception('Invalid kd mode...')
-		loss = cls_loss + kd_loss
+		loss = cls_loss + min(1, epoch/args.kd_warm_up) * kd_loss
 
 		prec1, prec5 = accuracy(out_s, target, topk=(1,5))
 		cls_losses.update(cls_loss.item(), img.size(0))
@@ -492,9 +497,12 @@ def test(test_loader, nets, criterions, epoch):
 		if args.kd_mode in ['logits', 'st']:
 			kd_loss  = criterionKD(out_s, out_t.detach()) * args.lambda_kd
 		elif args.kd_mode in ['tfd']:
-			kd_loss = (intra_fd(rb1_s[1], rb2_s[1].detach()) + intra_fd(rb2_s[1], rb3_s[1].detach()) + intra_fd(
-				rb1_s[1], rb3_s[1].detach())) * args.lambda_kd
-			kd_loss += (inter_fd(rb1_s[1]) + inter_fd(rb2_s[1]) + inter_fd(rb3_s[1])) * args.lambda_kd1
+			kd_loss = (F.mse_loss(F.avg_pool2d(rb1_s[1],2), rb2_s[1][:, 0:16, :, :].detach())+ F.mse_loss(F.avg_pool2d(rb1_s[1],4), rb3_s[1][:, 0:16, :, :].detach())+F.mse_loss(F.avg_pool2d(rb2_s[1],2), rb3_s[1][:, 0:32, :, :].detach()))/3 * args.lambda_inter
+			kd_loss += (intra_fd(rb1_s[1])+intra_fd(rb2_s[1])+intra_fd(rb3_s[1]) )/3  * args.lambda_intra
+		elif args.kd_mode in ['tfd+']:
+			kd_loss = F.kl_div(F.log_softmax(out_s/4, dim=1), F.softmax(out_t.detach()/4, dim=1),reduction='batchmean') * 4 * 4 * args.lambda_kd
+			kd_loss += (F.mse_loss(F.avg_pool2d(rb1_s[1],2), rb2_s[1][:, 0:16, :, :].detach())+ F.mse_loss(F.avg_pool2d(rb1_s[1],4), rb3_s[1][:, 0:16, :, :].detach())+F.mse_loss(F.avg_pool2d(rb2_s[1],2), rb3_s[1][:, 0:32, :, :].detach()))/3 * args.lambda_inter
+			kd_loss += (intra_fd(rb1_s[1])+intra_fd(rb2_s[1])+intra_fd(rb3_s[1]) )/3  * args.lambda_intra
 		elif args.kd_mode in ['fitnet', 'nst']:
 			kd_loss = criterionKD(rb3_s[1], rb3_t[1].detach()) * args.lambda_kd
 		elif args.kd_mode in ['at', 'sp']:
@@ -519,7 +527,7 @@ def test(test_loader, nets, criterions, epoch):
 			kd_loss = criterionKD([rb2_s[1], rb3_s[1], feat_s, out_s],
 								  [rb2_t[1].detach(),
 								   rb3_t[1].detach(),
-								   feat_t.detach(), 
+								   feat_t.detach(),
 								   out_t.detach()]) * args.lambda_kd
 		elif args.kd_mode in ['vid', 'afd']:
 			kd_loss = (criterionKD[1](rb1_s[1], rb1_t[1].detach()) +
@@ -543,6 +551,12 @@ def test(test_loader, nets, criterions, epoch):
 
 	return top1.avg, top5.avg
 
+
+def intra_fd(f_s):
+    sorted_s, indices_s = torch.sort(torch.nn.functional.normalize(f_s, p=2, dim=(2,3)).mean([0, 2, 3]), dim=0, descending=True)
+    f_s = torch.index_select(f_s, 1, indices_s)
+    loss = F.mse_loss(f_s[:, 0:f_s.shape[1]//2, :, :], f_s[:, f_s.shape[1]//2: f_s.shape[1], :, :])
+    return loss
 
 def adjust_lr_init(optimizer, epoch):
 	scale   = 0.1
