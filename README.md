@@ -67,9 +67,9 @@ python -u train_kd.py --save_root "./results/tfd+/" --kd_mode tfd+ --lambda_inte
 ## Results
 Most pretrained models and logs have been released on Baidu Netdisk:
 
-link: https://pan.baidu.com/s/1-1oKjctjSxzlWHygkffG_g
+link: https://pan.baidu.com/s/1F3QSX6MicA5qG5fxMOaCEg 
 
-pwd: i4fj
+pwd: tffd
 
 ## Acknowledgements
 This repo is partly based on the following repos, thank the authors a lot.
