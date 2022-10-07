@@ -2,7 +2,7 @@
 
 ### Self-Regulated Feature Learning via Teacher-free Feature Distillation
 
-[paper](https://github.com/lilujunai/Tf-FD.github.io/edit/gh-pages/index.md), [code](https://github.com/lilujunai/Teacher-free-Distillation), [Training logs & model](https://pan.baidu.com/s/1-1oKjctjSxzlWHygkffG_g), [Poster](https://github.com/lilujunai/Teacher-free-Distillation/blob/gh-pages/03287-Poster.pdf), [video](https://github.com/lilujunai/Teacher-free-Distillation/blob/gh-pages/03287.mp4), 
+[paper](https://github.com/lilujunai/Tf-FD.github.io/edit/gh-pages/index.md), [code](https://github.com/lilujunai/Teacher-free-Distillation), [Training logs & model](https://pan.baidu.com/s/1F3QSX6MicA5qG5fxMOaCEg)(tffd), [Poster](https://github.com/lilujunai/Teacher-free-Distillation/blob/gh-pages/03287-Poster.pdf), [video](https://github.com/lilujunai/Teacher-free-Distillation/blob/gh-pages/03287.mp4), 
 
 ![03287-Poster](E:\github\Teacher-free-Distillation\03287-Poster.jpg)
 
