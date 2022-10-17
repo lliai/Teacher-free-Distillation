@@ -4,7 +4,7 @@
 
 [paper](https://www.ecva.net/papers/eccv_2022/papers_ECCV/papers/136860337.pdf), [code](https://github.com/lilujunai/Teacher-free-Distillation), [Training logs & model](https://pan.baidu.com/s/1F3QSX6MicA5qG5fxMOaCEg)(tffd), [Poster](https://github.com/lilujunai/Teacher-free-Distillation/blob/gh-pages/03287-Poster.pdf), [video](https://github.com/lilujunai/Teacher-free-Distillation/blob/gh-pages/03287.mp4), 
 
-![03287-Poster](E:\github\Teacher-free-Distillation\03287-Poster.jpg)
+![03287-Poster](03287-Poster.jpg)
 
 
 ## Core Code
