@@ -2,8 +2,7 @@
 
 This project provides Pytorch implementation for [Self-Regulated Feature Learning via Teacher-free Feature Distillation](https://lilujunai.github.io/Teacher-free-Distillation/).
 
-## News
-A submission in my review replies to my Tf-FD results on semantic segmentation, as follows, best wishes for this work！
+**News!** A submission in my review replies to my Tf-FD results on semantic segmentation, as follows, best wishes for this work！
 
 We have evaluated `Tf-FD' (ECCV'22) with DeepLabV3-resnet18 on Cityscapes and CamVid, as shown in the table:
 
@@ -13,13 +12,11 @@ We have evaluated `Tf-FD' (ECCV'22) with DeepLabV3-resnet18 on Cityscapes and Ca
 | Tf-KD | Cityscapes| 70.35 |
 | SAD | Cityscapes| 70.10 |
 | Tf-FD | Cityscapes| 70.83 |
-| Ours | Cityscapes| 72.15 |
-|-----------+-------------+-------|
 | Student | CamVid | 65.90 |
 | Tf-KD | CamVid | 66.14 |
 | SAD | CamVid | 66.50 |
 | Tf-FD | CamVid | 67.01 |
-| Ours | CamVid | 67.48 |
+
 
 ![03287-Poster](03287-Poster.jpg)
 
